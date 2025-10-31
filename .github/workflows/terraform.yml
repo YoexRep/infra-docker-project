@@ -52,10 +52,10 @@ jobs:
             if [ -n "${TF_LOCK_TABLE}" ]; then
               INIT_FLAGS+=( -backend-config="dynamodb_table=${TF_LOCK_TABLE}" )
             fi
-            terraform init -input=false "${INIT_FLAGS[@]}"
+            terraform init -reconfigure -input=false "${INIT_FLAGS[@]}"
           else
             echo "No TF_STATE_BUCKET configured; using local backend." >&2
-            terraform init -input=false
+            terraform init -reconfigure -input=false -backend=false
           fi
 
       - name: Terraform Plan
