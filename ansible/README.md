@@ -1,4 +1,5 @@
 # Uso del archivo .env
+version 1
 
 Si tu aplicación dockerizada necesita variables de entorno desde un archivo `.env` (por ejemplo para `docker-compose.yml`), crea este archivo dentro de la carpeta `ansible/` antes de ejecutar el playbook o push al workflow de Ansible.
 
