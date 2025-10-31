@@ -4,7 +4,7 @@ output "public_ips" {
 }
 
 output "ssh_private_key_secret_name" {
-  description = "Name of the secret in AWS Secrets Manager containing the EC2 SSH private key 4"
+  description = "Name of the secret in AWS Secrets Manager containing the EC2 SSH private key 5"
   value       = module.keypair.secret_name
 }
 
