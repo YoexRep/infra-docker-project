@@ -63,14 +63,58 @@ jobs:
           TF_VAR_allowed_ssh_cidr: ${{ secrets.ALLOWED_SSH_CIDR }}
           TF_VAR_aws_region: ${{ vars.AWS_REGION || 'us-east-1' }}
           TF_VAR_additional_ssh_cidrs: '["0.0.0.0/0"]'
-        run: terraform plan -input=false -out=tfplan
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          TF_STATE_KEY: ${{ vars.TF_STATE_KEY }}
+          TF_STATE_REGION: ${{ vars.TF_STATE_REGION }}
+          TF_LOCK_TABLE: ${{ vars.TF_LOCK_TABLE }}
+        run: |
+          # Always re-init before plan on fresh runners
+          if [ -n "${TF_STATE_BUCKET}" ]; then
+            BK_KEY=${TF_STATE_KEY:-infra-docker-project/terraform.tfstate}
+            BK_REGION=${TF_STATE_REGION:-${TF_VAR_aws_region}}
+            INIT_FLAGS=(
+              -backend-config="bucket=${TF_STATE_BUCKET}"
+              -backend-config="key=${BK_KEY}"
+              -backend-config="region=${BK_REGION}"
+              -backend-config="encrypt=true"
+            )
+            if [ -n "${TF_LOCK_TABLE}" ]; then
+              INIT_FLAGS+=( -backend-config="dynamodb_table=${TF_LOCK_TABLE}" )
+            fi
+            terraform init -reconfigure -input=false "${INIT_FLAGS[@]}"
+          else
+            terraform init -reconfigure -input=false -backend=false
+          fi
+          terraform plan -input=false -out=tfplan
 
       - name: Terraform Apply
         env:
           TF_VAR_allowed_ssh_cidr: ${{ secrets.ALLOWED_SSH_CIDR }}
           TF_VAR_aws_region: ${{ vars.AWS_REGION || 'us-east-1' }}
           TF_VAR_additional_ssh_cidrs: '["0.0.0.0/0"]'
-        run: terraform apply -input=false -auto-approve tfplan
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          TF_STATE_KEY: ${{ vars.TF_STATE_KEY }}
+          TF_STATE_REGION: ${{ vars.TF_STATE_REGION }}
+          TF_LOCK_TABLE: ${{ vars.TF_LOCK_TABLE }}
+        run: |
+          # Always re-init before apply as well
+          if [ -n "${TF_STATE_BUCKET}" ]; then
+            BK_KEY=${TF_STATE_KEY:-infra-docker-project/terraform.tfstate}
+            BK_REGION=${TF_STATE_REGION:-${TF_VAR_aws_region}}
+            INIT_FLAGS=(
+              -backend-config="bucket=${TF_STATE_BUCKET}"
+              -backend-config="key=${BK_KEY}"
+              -backend-config="region=${BK_REGION}"
+              -backend-config="encrypt=true"
+            )
+            if [ -n "${TF_LOCK_TABLE}" ]; then
+              INIT_FLAGS+=( -backend-config="dynamodb_table=${TF_LOCK_TABLE}" )
+            fi
+            terraform init -reconfigure -input=false "${INIT_FLAGS[@]}"
+          else
+            terraform init -reconfigure -input=false -backend=false
+          fi
+          terraform apply -input=false -auto-approve tfplan
 
       - name: Show outputs
         run: terraform output -json
