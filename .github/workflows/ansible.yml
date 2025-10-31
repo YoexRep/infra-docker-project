@@ -36,7 +36,14 @@ jobs:
         env:
           PROJECT: infra-docker-project
         run: |
-          SECRET_NAME="${PROJECT}-ec2-ssh-private-key"
+          PREFIX="${PROJECT}-ec2-ssh-private-key"
+          SECRET_NAME=$(aws secretsmanager list-secrets \
+            --filters Key=name,Values="$PREFIX" \
+            --query 'SecretList | sort_by(@,&CreatedDate) | [-1].Name' --output text)
+          if [ "$SECRET_NAME" = "None" ] || [ -z "$SECRET_NAME" ]; then
+            echo "No secret found with prefix $PREFIX" >&2
+            exit 1
+          fi
           aws secretsmanager get-secret-value --secret-id "$SECRET_NAME" --query SecretString --output text > id_rsa
           chmod 600 id_rsa
 

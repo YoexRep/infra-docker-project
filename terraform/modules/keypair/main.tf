@@ -6,8 +6,8 @@ resource "tls_private_key" "ssh" {
 }
 
 resource "aws_key_pair" "this" {
-  key_name   = "${var.project_name}-ec2-key"
-  public_key = tls_private_key.ssh.public_key_openssh
+  key_name_prefix = "${var.project_name}-ec2-key-"
+  public_key      = tls_private_key.ssh.public_key_openssh
   tags = {
     Name    = "${var.project_name}-ec2-key"
     Project = var.project_name
@@ -15,7 +15,7 @@ resource "aws_key_pair" "this" {
 }
 
 resource "aws_secretsmanager_secret" "ssh_private_key" {
-  name = "${var.project_name}-ec2-ssh-private-key"
+  name_prefix = "${var.project_name}-ec2-ssh-private-key-"
   tags = {
     Project = var.project_name
   }
