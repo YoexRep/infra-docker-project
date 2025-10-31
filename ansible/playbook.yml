@@ -1,0 +1,9 @@
+- hosts: all
+  become: true
+  vars:
+    app_repo_url: "{{ lookup('file', 'app_repo_url.txt') | trim }}"
+    app_dir: /opt/app
+  roles:
+    - role: roles/common
+
+

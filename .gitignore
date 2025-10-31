@@ -1,0 +1,49 @@
+# Sensible & secrets
+ansible/.env
+*.pem
+*.key
+*id_rsa*
+*id_dsa*
+.aws/
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+terraform.tfvars
+
+# System/OS
+.DS_Store
+Thumbs.db
+
+# Python/Ansible
+__pycache__/
+*.pyc
+*.pyo
+*.retry
+*.log
+
+# Node
+node_modules/
+
+# Docker
+*.pid
+
+# Logs & temp
+*.log
+.env*
+*.bak
+*.swp
+*.swo
+
+# Editor/IDE
+.vscode/
+*.code-workspace
+.idea/
+.cursor/
+
+# Coverage/Testing
+coverage/
+*.cover
+
+# Inventory dynamic cache
+ansible/inventory/inventory.ini

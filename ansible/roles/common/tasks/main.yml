@@ -1,0 +1,71 @@
+- name: Ensure required packages are installed
+  package:
+    name:
+      - git
+      - python3
+      - docker
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: Ensure docker service is running
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Add ec2-user to docker group
+  user:
+    name: ec2-user
+    groups: docker
+    append: true
+  ignore_errors: true
+
+- name: Install docker-compose (standalone)
+  get_url:
+    url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-{{ ansible_system }}-{{ ansible_architecture }}
+    dest: /usr/local/bin/docker-compose
+    mode: '0755'
+
+- name: Create application directory
+  file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: ec2-user
+    group: ec2-user
+    mode: '0755'
+
+- name: Copiar .env (si existe) antes de clonar la app
+  copy:
+    src: "{{ playbook_dir }}/../.env"
+    dest: "{{ app_dir }}/.env"
+    owner: ec2-user
+    group: ec2-user
+    mode: '0600'
+  ignore_errors: yes
+  when: lookup('file', playbook_dir + '/../.env', errors='ignore') != ''
+
+- name: Clone or update dockerized application
+  git:
+    repo: "{{ app_repo_url }}"
+    dest: "{{ app_dir }}"
+    version: HEAD
+    update: yes
+    force: yes
+  become_user: ec2-user
+
+- name: Copiar .env (de nuevo, para sobreescribir si git trae uno)
+  copy:
+    src: "{{ playbook_dir }}/../.env"
+    dest: "{{ app_dir }}/.env"
+    owner: ec2-user
+    group: ec2-user
+    mode: '0600'
+  ignore_errors: yes
+  when: lookup('file', playbook_dir + '/../.env', errors='ignore') != ''
+
+- name: Bring up application with docker-compose
+  command: docker-compose up -d
+  args:
+    chdir: "{{ app_dir }}"
+
+
