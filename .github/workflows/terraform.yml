@@ -34,18 +34,21 @@ jobs:
         env:
           TF_VAR_allowed_ssh_cidr: ${{ secrets.ALLOWED_SSH_CIDR }}
           TF_VAR_aws_region: ${{ vars.AWS_REGION || 'us-east-1' }}
+          TF_VAR_additional_ssh_cidrs: '["0.0.0.0/0"]'
         run: terraform init -input=false
 
       - name: Terraform Plan
         env:
           TF_VAR_allowed_ssh_cidr: ${{ secrets.ALLOWED_SSH_CIDR }}
           TF_VAR_aws_region: ${{ vars.AWS_REGION || 'us-east-1' }}
+          TF_VAR_additional_ssh_cidrs: '["0.0.0.0/0"]'
         run: terraform plan -input=false -out=tfplan
 
       - name: Terraform Apply
         env:
           TF_VAR_allowed_ssh_cidr: ${{ secrets.ALLOWED_SSH_CIDR }}
           TF_VAR_aws_region: ${{ vars.AWS_REGION || 'us-east-1' }}
+          TF_VAR_additional_ssh_cidrs: '["0.0.0.0/0"]'
         run: terraform apply -input=false -auto-approve tfplan
 
       - name: Show outputs

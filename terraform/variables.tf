@@ -27,4 +27,10 @@ variable "az_count" {
   default     = 2
 }
 
+variable "additional_ssh_cidrs" {
+  description = "Additional CIDRs allowed to SSH (22), e.g. for CI runners"
+  type        = list(string)
+  default     = []
+}
+
 

@@ -6,10 +6,11 @@ module "vpc" {
 }
 
 module "security" {
-  source           = "./modules/security"
-  project_name     = var.project_name
-  vpc_id           = module.vpc.vpc_id
-  allowed_ssh_cidr = var.allowed_ssh_cidr
+  source                = "./modules/security"
+  project_name          = var.project_name
+  vpc_id                = module.vpc.vpc_id
+  allowed_ssh_cidr      = var.allowed_ssh_cidr
+  additional_ssh_cidrs  = var.additional_ssh_cidrs
 }
 
 module "keypair" {

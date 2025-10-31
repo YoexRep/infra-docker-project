@@ -1,10 +1,14 @@
 variable "project_name" { type = string }
 variable "vpc_id" { type = string }
 variable "allowed_ssh_cidr" { type = string }
+variable "additional_ssh_cidrs" {
+  type    = list(string)
+  default = []
+}
 
 resource "aws_security_group" "web_sg" {
   name        = "${var.project_name}-web-sg"
-  description = "Allow HTTP from all and SSH from allowed CIDR"
+  description = "Allow HTTP from all and SSH from allowed CIDR(s)"
   vpc_id      = var.vpc_id
 
   ingress {
@@ -16,11 +20,22 @@ resource "aws_security_group" "web_sg" {
   }
 
   ingress {
-    description = "SSH"
+    description = "SSH (primary)"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = [var.allowed_ssh_cidr]
+  }
+
+  dynamic "ingress" {
+    for_each = var.additional_ssh_cidrs
+    content {
+      description = "SSH (additional)"
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = [ingress.value]
+    }
   }
 
   egress {
