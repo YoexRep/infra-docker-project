@@ -1,6 +1,6 @@
 # infra-docker-project
 
-Automatiza infraestructura en AWS con Terraform y configura EC2 con Ansible para desplegar una aplicación dockerizada. Dos workflows independientes (Terraform y Ansible) ejecutan el flujo con solo hacer push.
+Automatiza infraestructura en AWS con Terraform y configura EC2 con Ansible para desplegar una aplicación dockerizada. Los workflows independientes (Terraform y Ansible) ejecutan el flujo con solo hacer push.
 
 ## Estructura
 
